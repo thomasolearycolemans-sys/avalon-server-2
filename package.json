@@ -1,0 +1,18 @@
+{
+  "name": "avalon-online-server",
+  "version": "1.0.0",
+  "description": "Phase 1 online server for the Avalon companion — room-based private role dealing over WebSockets.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "node test-harness.js && node test-game.js && node test-game-e2e.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  },
+  "license": "UNLICENSED",
+  "private": true
+}
