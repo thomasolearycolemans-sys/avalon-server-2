@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#201b16">
+<title>Avalon — Online</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Grenze+Gotisch:wght@500;600;700&family=Alegreya:ital,wght@0,400;0,500;0,700;1,400&family=Alegreya+SC:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#201b16;--ink85:rgba(32,27,22,.85);--ink60:rgba(32,27,22,.6);
+  --parchment:#e9dfc8;--parchment2:#d9c9a8;--parchment3:#c9b489;
+  --indigo:#3a3f6b;--indigo-deep:#2c3054;--good-blue:#2d5b8e;--good-deep:#1d3f66;--evil-red:#a3312b;--evil-deep:#6e1f1d;--quest-gold:#c1922f;--mystic-teal:#2f6b5f;
+  --grain:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");
+  --r:2px;--shadow:0 2px 0 rgba(32,27,22,.35);--ease:cubic-bezier(.2,.8,.2,1);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{font-family:'Alegreya',Georgia,serif;color:var(--ink);background:var(--parchment);background-image:var(--grain);background-blend-mode:multiply;position:fixed;inset:0;overflow:hidden;-webkit-user-select:none;user-select:none}
+body[data-team=good]{background:#e6ecf2}body[data-team=evil]{background:#f0e0dc}
+#app{height:100dvh;display:flex;flex-direction:column;max-width:480px;margin:0 auto}
+main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:calc(env(safe-area-inset-top) + 18px) 18px calc(env(safe-area-inset-bottom) + 28px)}
+.screen{display:none;animation:i .2s var(--ease)}.screen.active{display:block}
+@keyframes i{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+h1{font-family:'Grenze Gotisch',serif;font-weight:600;font-size:52px;text-align:center;line-height:1.05}
+h2{font-family:'Grenze Gotisch',serif;font-weight:600;font-size:24px}
+.eyebrow{font-family:'Alegreya SC',serif;font-size:13px;letter-spacing:.14em;opacity:.75}
+.small{font-size:13.5px;opacity:.85}.center{text-align:center}
+button{font:inherit;color:inherit;cursor:pointer;touch-action:manipulation}
+.btn{display:block;width:100%;padding:14px 16px;border-radius:var(--r);border:1.5px solid var(--ink85);background:var(--parchment2);font-family:'Alegreya SC',serif;font-size:17px;letter-spacing:.06em;box-shadow:var(--shadow);transition:transform .1s var(--ease),background .1s;margin-bottom:10px}
+.btn:active{transform:translateY(1px);box-shadow:0 1px 0 rgba(32,27,22,.35);background:var(--parchment3)}
+.btn.primary{background:var(--quest-gold);border-color:var(--ink)}
+.btn.evil{background:var(--evil-red);border-color:var(--evil-deep);color:var(--parchment)}
+.btn.ghost{background:transparent;box-shadow:none}
+.btn:disabled{opacity:.4;pointer-events:none}
+input[type=text]{width:100%;padding:12px;border:1.5px solid var(--ink60);border-radius:var(--r);background:rgba(255,252,244,.6);font:inherit;font-size:16px;color:var(--ink);text-align:center}
+.code-in{font-family:'Grenze Gotisch',serif;font-size:34px;letter-spacing:.3em;text-transform:uppercase}
+.frame{border:1.5px solid var(--ink85);border-radius:var(--r);background:var(--parchment);padding:14px;box-shadow:var(--shadow);margin-bottom:14px}
+.bar{background:var(--indigo);color:#f2ead8;font-family:'Alegreya SC',serif;letter-spacing:.18em;font-size:13px;text-align:center;padding:7px;margin:14px 0 10px;border-radius:1px}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border:1.5px solid var(--ink60);border-radius:999px;background:var(--parchment2);font-family:'Alegreya SC',serif;font-size:13px;margin:3px}
+.pill.host{border-color:var(--quest-gold);background:rgba(193,146,47,.16)}
+.pill.away{opacity:.45}
+.dot{width:9px;height:9px;border-radius:999px;background:var(--mystic-teal)}.pill.away .dot{background:var(--ink60)}
+.codebig{font-family:'Grenze Gotisch',serif;font-size:56px;letter-spacing:.22em;text-align:center;color:var(--indigo-deep)}
+#qr{display:block;margin:10px auto;width:150px;height:150px;background:#fff;border:6px solid #fff;border-radius:4px}
+.card{width:min(74vw,300px);aspect-ratio:5/7;margin:14px auto;border-radius:14px;border:2px solid var(--ink);position:relative;overflow:hidden;box-shadow:0 10px 28px rgba(0,0,0,.35);background:linear-gradient(160deg,#3a332a,#241d18 65%)}
+.card .band{position:absolute;left:0;right:0;bottom:0;padding:14px 10px 16px;text-align:center;font-family:'Grenze Gotisch',serif;font-size:30px;color:var(--parchment);background:linear-gradient(transparent,rgba(20,16,12,.9) 45%)}
+.card .facecue{position:absolute;inset:0;display:grid;place-items:center;font-family:'Alegreya SC',serif;letter-spacing:.14em;font-size:14px;color:rgba(233,223,200,.85)}
+.card.evil{background:linear-gradient(160deg,#4a1c18,#2c0e0c 65%)}
+/* ---- Step 5: reveal-card flip ceremony ---- */
+.card{transition:transform .34s var(--ease),box-shadow .34s var(--ease)}
+.card.flipping{transform:rotateY(90deg) scale(.98);box-shadow:0 6px 16px rgba(0,0,0,.45)}
+.card .seal{width:58px;height:58px;margin:0 auto 12px;border-radius:50%;background:radial-gradient(circle at 42% 38%, #b3474a, #7d2420 62%, #4e1512 100%);box-shadow:inset 0 2px 6px rgba(255,255,255,.25),0 3px 8px rgba(0,0,0,.4);display:grid;place-items:center;font-family:'Grenze Gotisch',serif;color:rgba(255,240,220,.85);font-size:24px;position:relative}
+.card .seal::after{content:"";position:absolute;inset:5px;border:1px solid rgba(255,240,220,.35);border-radius:50%}
+.card .facecue .cuewrap{display:grid;place-items:center;text-align:center}
+.card .facecue .cuetxt{font-size:13px;opacity:.85}
+/* ---- quest-resolution beat ---- */
+#beat{position:fixed;inset:0;z-index:45;display:none;place-items:center;background:rgba(20,16,12,.72);backdrop-filter:blur(2px);text-align:center}
+#beat.show{display:grid;animation:beatIn .3s var(--ease)}
+@keyframes beatIn{from{opacity:0}to{opacity:1}}
+#beat .scroll{font-family:'Grenze Gotisch',serif;font-size:30px;color:var(--parchment);letter-spacing:.02em}
+#beat .sub{font-family:'Alegreya SC',serif;font-size:13px;letter-spacing:.14em;color:rgba(233,223,200,.7);margin-top:8px}
+#beat .rune{width:16px;height:16px;margin:0 auto 16px;border-radius:2px;transform:rotate(45deg);background:var(--quest-gold);box-shadow:0 0 22px 6px rgba(193,146,47,.5);animation:pulse 1s var(--ease) infinite}
+@keyframes pulse{0%,100%{transform:rotate(45deg) scale(1);opacity:.85}50%{transform:rotate(45deg) scale(1.25);opacity:1}}
+#beat.success .rune{background:var(--good-blue);box-shadow:0 0 22px 6px rgba(45,91,142,.5)}
+#beat.fail .rune{background:var(--evil-red);box-shadow:0 0 22px 6px rgba(163,49,43,.55)}
+/* ---- victory / defeat sequence ---- */
+.overbanner{text-align:center;padding:22px 12px;border-radius:4px;margin-bottom:14px;position:relative;overflow:hidden;animation:bannerIn .5s var(--ease)}
+@keyframes bannerIn{from{opacity:0;transform:scale(.94) translateY(8px)}to{opacity:1;transform:none}}
+.overbanner.good{background:radial-gradient(circle at 50% 20%, #3f6ea6, #1d3f66 80%);color:#eaf1f8}
+.overbanner.evil{background:radial-gradient(circle at 50% 20%, #7d2420, #3a0f0d 80%);color:#f3e0dc}
+.overbanner .crest{font-size:38px;line-height:1;margin-bottom:6px;filter:drop-shadow(0 2px 6px rgba(0,0,0,.4))}
+.overbanner .verdict{font-family:'Grenze Gotisch',serif;font-size:34px;letter-spacing:.02em}
+.overbanner .why{font-family:'Alegreya',serif;font-size:14px;opacity:.9;margin-top:6px;max-width:300px;margin-left:auto;margin-right:auto}
+.revrow{opacity:0;animation:revIn .4s var(--ease) forwards}
+@keyframes revIn{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:none}}
+.info{max-width:320px;margin:8px auto 0;border:1.5px solid var(--ink85);border-radius:2px;background:var(--parchment);padding:12px;box-shadow:var(--shadow)}
+.info .ihead{font-family:'Alegreya SC',serif;font-size:12px;letter-spacing:.14em;opacity:.7;margin-bottom:6px}
+.info ul{list-style:none}.info li{font-family:'Grenze Gotisch',serif;font-size:22px;padding:2px 0}
+.info .none{font-style:italic;opacity:.85;line-height:1.45;font-size:14px}
+.info .sub{font-size:13.5px;opacity:.85;margin-top:6px;line-height:1.45}
+.eq{font-family:'Grenze Gotisch',serif;font-size:26px;text-align:center;margin:10px 0}
+.status{position:fixed;left:0;right:0;bottom:0;text-align:center;font-size:12.5px;padding:6px;background:rgba(32,27,22,.1);color:var(--ink);opacity:.95}
+.status.err{background:rgba(163,49,43,.16);color:var(--evil-deep);font-weight:700}
+.status.err::before{content:"⚠ "}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.qtrack{display:flex;gap:6px;justify-content:center;margin:6px 0 4px}
+.qtrack .q{width:38px;height:38px;border-radius:8px;border:1.5px solid var(--ink60);display:grid;place-items:center;font-family:'Grenze Gotisch',serif;font-size:15px;background:var(--parchment2)}
+.qtrack .q .sz{font-size:11px;opacity:.6}
+.qtrack .q.success{background:var(--good-blue);color:#f2ead8;border-color:var(--good-deep)}
+.qtrack .q.fail{background:var(--evil-red);color:#f2ead8;border-color:var(--evil-deep)}
+.qtrack .q.current{box-shadow:0 0 0 2px var(--quest-gold)}
+.qtrack .q .two{position:absolute;font-size:8px}
+.seatlist{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:8px 0}
+.seatlist .st{padding:9px 12px;border:1.5px solid var(--ink60);border-radius:999px;background:var(--parchment2);font-family:'Alegreya SC',serif;font-size:13px;display:flex;align-items:center;gap:6px}
+.seatlist .st.leader{border-color:var(--quest-gold);background:rgba(193,146,47,.16)}
+.seatlist .st.onteam{border-color:var(--good-blue);border-width:2px}
+.seatlist .st.pick{cursor:pointer}
+.seatlist .st.picked{background:var(--good-blue);color:#f2ead8;border-color:var(--good-deep)}
+.seatlist .st .v{width:8px;height:8px;border-radius:999px;background:var(--ink60)}
+.seatlist .st.voted .v{background:var(--mystic-teal)}
+.seatlist .st.me{box-shadow:0 0 0 2px var(--quest-gold);font-weight:700}
+.seatlist .st .youtag{font-size:10px;letter-spacing:.1em;opacity:.7;text-transform:uppercase}
+.seatlist .st .vote{font-size:12px;font-weight:700}
+.seatlist .st .vote.approve{color:var(--mystic-teal)}
+.seatlist .st .vote.reject{color:var(--evil-red)}
+.history{margin-top:14px;border-top:1px dashed var(--ink60);padding-top:10px}
+.history .hhead,.history .hsub{font-family:'Alegreya SC',serif;font-size:12px;letter-spacing:.14em;opacity:.7;margin:2px 0 6px}
+.history .hsub{margin-top:10px}
+.history .hrow{font-size:13px;padding:5px 0;border-bottom:1px solid rgba(32,27,22,.08)}
+.history .hq,.history .hp{font-family:'Alegreya SC',serif;font-size:12px;padding:2px 8px;border-radius:999px;border:1px solid var(--ink60);margin-right:6px;white-space:nowrap}
+.history .hq.success{background:rgba(45,91,142,.15);border-color:var(--good-deep)}
+.history .hq.fail{background:rgba(163,49,43,.15);border-color:var(--evil-deep)}
+.history .hp.passed{background:rgba(47,107,95,.14)}
+.history .hp.failed{background:rgba(163,49,43,.1)}
+.history .hteam{opacity:.85}
+.history .hfail{color:var(--evil-red);font-size:12px}
+.history .vchips{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px}
+.history .vchip{display:inline-flex;align-items:center;gap:3px;font-size:10.5px;padding:2px 7px;border-radius:999px;border:1px solid var(--ink60);background:var(--parchment)}
+.history .vchip.approve{border-color:var(--mystic-teal);color:var(--mystic-teal)}
+.history .vchip.reject{border-color:var(--evil-red);color:var(--evil-red)}
+.history .vchip .vn{opacity:.75;color:var(--ink)}
+.panel{margin:12px 0}
+.gamelog{margin-top:14px;border-top:1px dashed var(--ink60);padding-top:8px;font-size:12.5px;opacity:.8;max-height:120px;overflow-y:auto}
+.gamelog div{padding:2px 0}
+.qcard{flex:1;padding:18px 10px;border-radius:8px;border:2px solid var(--ink);font-family:'Alegreya SC',serif;font-size:16px;letter-spacing:.06em}
+.qcard.success{background:var(--good-blue);color:#f2ead8;border-color:var(--good-deep)}
+.qcard.fail{background:var(--evil-red);color:#f2ead8;border-color:var(--evil-deep)}
+.revrole{display:flex;justify-content:space-between;padding:6px 10px;border:1px solid var(--ink60);border-radius:2px;margin-bottom:4px;font-size:14px}
+.revrole.good{background:rgba(45,91,142,.12)}.revrole.evil{background:rgba(163,49,43,.12)}
+.revrole .rn{font-family:'Alegreya SC',serif}
+.rolechips{display:flex;flex-wrap:wrap;gap:6px}
+.rc{padding:8px 10px;border:1.5px solid var(--ink60);border-radius:2px;background:var(--parchment2);font-family:'Alegreya SC',serif;font-size:13px}
+.rc.on{border-width:2px;border-color:var(--indigo);background:#cfd4e6}
+.seg{display:inline-flex;border:1.5px solid var(--ink60);border-radius:2px;overflow:hidden}
+.seg button{padding:6px 12px;background:transparent;border:0;font-family:'Alegreya SC',serif;font-size:13px;opacity:.6}
+.seg button.on{background:var(--indigo);color:#f2ead8;opacity:1}
+/* ---- Step 2: connection overlay + error toast ---- */
+#overlay{position:fixed;inset:0;z-index:50;display:none;place-items:center;background:rgba(24,20,16,.82);backdrop-filter:blur(3px);text-align:center;padding:24px}
+#overlay.show{display:grid}
+#overlay .lantern{width:54px;height:54px;margin:0 auto 18px;border-radius:50% 50% 46% 46%;background:radial-gradient(circle at 50% 42%, #ffd98a, #c1922f 55%, #6e4a12 100%);box-shadow:0 0 34px 10px rgba(193,146,47,.55);animation:flicker 1.9s var(--ease) infinite}
+@keyframes flicker{0%,100%{opacity:.92;transform:translateY(0) scale(1)}45%{opacity:1;transform:translateY(-1px) scale(1.03)}70%{opacity:.85;transform:translateY(.5px) scale(.99)}}
+#overlay .otitle{font-family:'Grenze Gotisch',serif;font-size:26px;color:var(--parchment);margin-bottom:6px}
+#overlay .osub{font-family:'Alegreya',serif;font-size:14px;color:rgba(233,223,200,.8);max-width:280px;line-height:1.5}
+#overlay .oact{margin-top:18px}
+#overlay .oact button{padding:10px 18px;border:1.5px solid rgba(233,223,200,.5);border-radius:2px;background:transparent;color:var(--parchment);font-family:'Alegreya SC',serif;font-size:14px}
+#toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 14px);transform:translateX(-50%) translateY(-140%);z-index:60;max-width:88%;background:var(--evil-red);color:#fff;border:1.5px solid var(--evil-deep);border-radius:3px;padding:11px 16px;font-family:'Alegreya',serif;font-size:14.5px;box-shadow:0 6px 20px rgba(0,0,0,.35);transition:transform .28s var(--ease);display:flex;align-items:center;gap:9px}
+#toast.show{transform:translateX(-50%) translateY(0)}
+#toast .ti{font-family:'Grenze Gotisch',serif;font-size:18px;line-height:1}
+#toast.info{background:var(--indigo);border-color:var(--indigo-deep)}
+.offlinelink{display:block;text-align:center;margin-top:22px;font-size:13px;color:var(--ink);opacity:.7;text-decoration:underline;text-underline-offset:3px}
+.kickx{margin-left:6px;border:none;background:transparent;color:var(--evil-red);font-size:13px;font-weight:700;cursor:pointer;padding:0 2px;opacity:.7}
+.kickx:active{opacity:1}
+.helpov{position:fixed;inset:0;z-index:55;display:none;place-items:center;background:rgba(24,20,16,.8);backdrop-filter:blur(3px);padding:20px;overflow-y:auto}
+.helpov.show{display:grid}
+.helpcard{max-width:400px;background:var(--parchment);border:1.5px solid var(--ink85);border-radius:4px;padding:20px;box-shadow:0 12px 40px rgba(0,0,0,.4);max-height:88vh;overflow-y:auto}
+.helpcard .hp{font-size:14px;line-height:1.55;margin-bottom:12px}
+.helpcard .hstep{font-size:13.5px;line-height:1.5;padding:8px 10px;margin-bottom:7px;border-left:2px solid var(--quest-gold);background:var(--parchment2);border-radius:2px}
+.helpcard .hstep b{font-family:'Alegreya SC',serif;letter-spacing:.04em}
+.awaiting{margin:8px auto 0;max-width:340px;border-radius:3px;padding:9px 12px;font-size:13.5px;text-align:center;border:1.5px solid var(--ink60);background:var(--parchment2)}
+.awaiting.dropped{border-color:var(--evil-deep);background:rgba(163,49,43,.12)}
+.awaiting .who{font-family:'Alegreya SC',serif;letter-spacing:.03em}
+.awaiting .tag{display:inline-block;margin-left:6px;font-size:11px;letter-spacing:.08em;padding:1px 7px;border-radius:999px;border:1px solid var(--evil-deep);color:var(--evil-deep);background:rgba(163,49,43,.1)}
+</style>
+</head>
+<body data-team="">
+<div id="overlay">
+  <div>
+    <div class="lantern" id="overlay-lantern"></div>
+    <div class="otitle" id="overlay-title">Lighting the lantern…</div>
+    <div class="osub" id="overlay-sub">Connecting to the table.</div>
+    <div class="oact" id="overlay-act" style="display:none"><button onclick="overlayRetry()">Try again</button></div>
+  </div>
+</div>
+<div id="toast"><span class="ti" id="toast-icon" aria-hidden="true">⚠</span><span id="toast-msg"></span></div>
+<div id="sr-live" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
+<div id="beat"><div><div class="rune"></div><div class="scroll" id="beat-text">The quest returns…</div><div class="sub" id="beat-sub">a rider approaches</div></div></div>
+<div id="help" class="helpov"><div class="helpcard">
+  <div class="eyebrow">how a round works</div>
+  <h2 style="margin:4px 0 10px">The gist of Avalon</h2>
+  <p class="hp">Good and Evil sit at one table. Good outnumbers Evil, but doesn't know who's who — Evil knows each other. Good wins by succeeding three quests; Evil wins by failing three, or by staying hidden.</p>
+  <div class="hstep"><b>1 · Propose</b> The leader picks a small team to go on the quest.</div>
+  <div class="hstep"><b>2 · Vote</b> Everyone approves or rejects that team — votes are public. Reject five in a row and Evil wins, so teams must eventually pass.</div>
+  <div class="hstep"><b>3 · Quest</b> Only the chosen team plays a card in secret. Good must play Success. Evil may play Success <i>or</i> Fail. One Fail usually sinks the quest (some large quests need two).</div>
+  <div class="hstep"><b>4 · Repeat</b> Leadership passes around the table. First side to three quests wins the quests.</div>
+  <div class="hstep"><b>5 · The dagger</b> If Good succeeds three quests, Evil's Assassin gets one last chance: name Merlin. Guess right, and Evil steals the win.</div>
+  <p class="hp" style="opacity:.75">Your job is to read the table — who proposed whom, who voted how, who was aboard a failed quest. The History panel remembers all of it for you.</p>
+  <button class="btn" onclick="hideHelp()" style="margin-top:6px">Got it</button>
+</div></div>
+<div id="app"><main>
+
+  <!-- HOME -->
+  <section class="screen active" id="s-home">
+    <h1>Avalon</h1>
+    <p class="eyebrow center" style="margin:2px 0 26px">online table</p>
+    <label class="small" style="display:block;margin-bottom:6px">Your name</label>
+    <input type="text" id="name" placeholder="e.g. Arthur" maxlength="14" aria-label="Your name">
+    <div style="height:16px"></div>
+    <button class="btn primary" onclick="doCreate()">Host a New Game</button>
+    <div class="bar">OR JOIN ONE</div>
+    <input type="text" id="joincode" class="code-in" placeholder="CODE" maxlength="4" oninput="this.value=this.value.toUpperCase()" aria-label="Game code" autocomplete="off">
+    <div style="height:12px"></div>
+    <button class="btn" onclick="doJoin()">Join Game</button>
+    <p class="small center" style="margin-top:18px;opacity:.7">Everyone plays from their own phone. Secrets are delivered privately — no one else can see your role.</p>
+    <a class="offlinelink" id="offline-link" href="#" onclick="return false">Playing in person? Use the offline app →</a>
+    <a class="offlinelink" href="#" onclick="showHelp();return false" style="margin-top:8px">New to Avalon? How a round works →</a>
+  </section>
+
+  <!-- LOBBY -->
+  <section class="screen" id="s-lobby">
+    <div class="center"><div class="eyebrow">share this code</div><div class="codebig" id="lobby-code">—</div></div>
+    <img id="qr" alt="join QR code">
+    <p class="small center" id="share-hint">Others open this page and enter the code, or scan the QR.</p>
+    <div class="bar">AT THE TABLE (<span id="pcount">0</span>)</div>
+    <div id="players" class="center"></div>
+    <div class="center" style="margin-top:8px">
+      <button class="btn ghost" style="width:auto;display:inline-block;padding:6px 14px;font-size:13px" onclick="openRename()">✎ Change my name</button>
+    </div>
+    <div id="rename-row" style="display:none;margin-top:8px">
+      <div class="row" style="display:flex;gap:8px">
+        <input type="text" id="rename-input" maxlength="14" placeholder="New name" style="flex:2" aria-label="New name">
+        <button class="btn" style="flex:1;margin:0" onclick="submitRename()">Save</button>
+      </div>
+    </div>
+
+    <div id="hostbox" style="display:none">
+      <div class="bar">SETTINGS · HOST</div>
+      <div class="frame">
+        <div class="small" style="margin-bottom:8px">Players seated: <b id="seated">0</b> · roles chosen: <b id="chosen">0</b></div>
+        <div class="rolechips" id="rolechips"></div>
+        <div style="margin-top:12px;display:flex;justify-content:space-between;align-items:center">
+          <span class="small">Lancelot</span>
+          <span class="seg"><button id="l-def" class="on" onclick="setOpt('lanc','default')">Meet</button><button id="l-var" onclick="setOpt('lanc','variant')">Variant</button></span>
+        </div>
+        <div style="margin-top:8px;display:flex;justify-content:space-between;align-items:center">
+          <span class="small">Hidden Sorcerer</span>
+          <span class="seg"><button id="s-off" class="on" onclick="setOpt('sorc',false)">Off</button><button id="s-on" onclick="setOpt('sorc',true)">On</button></span>
+        </div>
+        <div style="margin-top:8px;display:flex;justify-content:space-between;align-items:center">
+          <span class="small">Messenger step</span>
+          <span class="seg"><button id="m-off" class="on" onclick="setOpt('msg',false)">Off</button><button id="m-on" onclick="setOpt('msg',true)">On</button></span>
+        </div>
+      </div>
+      <div id="warnings"></div>
+      <button class="btn evil" id="dealbtn" onclick="doDeal()">Deal the Roles</button>
+    </div>
+    <p class="small center" id="waithint" style="display:none;opacity:.7">Waiting for the host to deal…</p>
+    <div style="margin-top:18px">
+      <button class="btn evil" id="lobby-disband" onclick="disbandGame()" style="display:none">Disband the Lobby</button>
+      <button class="btn ghost" onclick="leaveGame()">Leave</button>
+    </div>
+  </section>
+
+  <!-- REVEAL -->
+  <section class="screen" id="s-reveal">
+    <p class="eyebrow center" id="rev-hint">tap the card to see your role · tap again to hide</p>
+    <div class="card" id="rev-card" onclick="toggleCard()" role="button" tabindex="0" aria-label="Your role card. Activate to reveal or hide." onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleCard();}">
+      <div class="facecue" id="rev-facecue"><div class="cuewrap"><div class="seal">A</div><div class="cuetxt">TAP TO BREAK THE SEAL</div></div></div>
+      <div class="band" id="rev-band" style="display:none">—</div>
+    </div>
+    <div id="rev-detail" style="display:none">
+      <div class="info" id="rev-info" style="display:none"></div>
+      <div class="frame" id="rev-decoy" style="display:none;max-width:240px;margin:8px auto 0"><div class="eq" id="rev-eq">—</div><div class="small center">nothing more to know — a private moment, same as everyone else's</div></div>
+    </div>
+    <div class="frame center" style="margin-top:16px">
+      <div class="eyebrow">first quest leader</div>
+      <div style="font-family:'Grenze Gotisch',serif;font-size:24px" id="rev-leader">—</div>
+      <div class="small" id="rev-leader-sub">proposes the first team.</div>
+    </div>
+    <p class="small center" style="opacity:.7">Keep your phone to yourself. When everyone has looked, begin the first quest at the table.</p>
+    <div id="rev-startnight" style="display:none">
+      <div class="bar">SYNCHRONISED NIGHT · HOST</div>
+      <div class="frame">
+        <p class="small" style="margin-bottom:10px">Optional. Run the narrated night in lockstep on every phone. Each player hears the same line at the same moment. Everyone already knows their role, so this is for atmosphere.</p>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <span class="small">Auto-advance</span>
+          <span class="seg"><button id="af-on" class="on" onclick="setNarr('autoFlow',true)">On</button><button id="af-off" onclick="setNarr('autoFlow',false)">Off</button></span>
+        </div>
+        <label class="small" style="display:block">Buffer between lines · <span id="buf-val">2.0</span>s <span style="opacity:.6">(evil recognition is always 3s)</span>
+          <input type="range" min="0.5" max="6" step="0.5" value="2" oninput="setNarr('gapSeconds',parseFloat(this.value))" style="width:100%;accent-color:var(--quest-gold)"></label>
+        <label class="small" style="display:block;margin-top:8px">Music
+          <select id="music-sel" onchange="setNarr('music',this.value)" style="width:100%;padding:8px;font:inherit;font-family:'Alegreya SC',serif">
+            <option value="off">Off</option>
+            <option value="6-the-bards-round">The Bard's Round</option>
+            <option value="7-vespers">Vespers</option>
+            <option value="8-hurdy-gurdy-mist">Hurdy-Gurdy Mist</option>
+            <option value="9-the-queens-carol">The Queen's Carol</option>
+            <option value="10-procession">Procession</option>
+          </select></label>
+      </div>
+      <button class="btn evil" onclick="doStartNight()">Begin the Synchronised Night</button>
+    </div>
+    <div id="rev-startgame" style="display:none">
+      <button class="btn primary" onclick="doStartGame()">Play the Game Online (skip narration)</button>
+      <p class="small center" style="opacity:.7;margin-top:4px">Runs quests, votes, and the assassination on everyone's phones.</p>
+    </div>
+    <button class="btn ghost" onclick="leaveGame()">Leave game</button>
+  </section>
+
+  <!-- NIGHT (synchronised) -->
+  <section class="screen" id="s-night">
+    <div style="width:10px;height:10px;border-radius:999px;background:var(--quest-gold);margin:6px auto;box-shadow:0 0 24px 10px rgba(193,146,47,.45)"></div>
+    <div class="eyebrow center" id="night-step" style="min-height:1.2em"></div>
+    <div id="night-line" style="font-family:'Grenze Gotisch',serif;font-size:25px;line-height:1.32;text-align:center;min-height:5em;display:grid;place-items:center;padding:14px 8px"></div>
+    <div class="center small" id="night-progress" style="opacity:.7"></div>
+    <div id="night-hostctrl" class="frame" style="display:none;margin-top:14px">
+      <div class="row" style="display:flex;gap:8px">
+        <button class="btn" id="night-pause" onclick="nightPause()" style="margin:0">Pause</button>
+        <button class="btn" id="night-next" onclick="nightStep()" style="margin:0">Next ▸</button>
+      </div>
+      <button class="btn" id="night-music" onclick="nightMusicToggle()" style="margin:8px 0 0">♪ Music</button>
+    </div>
+    <p class="small center" id="night-guesthint" style="display:none;opacity:.7;margin-top:14px">The host is guiding the night.</p>
+    <div id="night-done" style="display:none;text-align:center;margin-top:14px">
+      <h2>The night is over.</h2>
+      <p class="small" style="margin:8px 0">Play the quests on everyone's phones, or continue at the table.</p>
+      <button class="btn primary" id="night-done-play" onclick="doStartGame()" style="display:none">Play the Game Online</button>
+      <button class="btn ghost" onclick="leaveGame()">Leave game</button>
+    </div>
+  </section>
+
+  <!-- GAME BOARD (Phase 3) -->
+  <section class="screen" id="s-game">
+    <div id="quest-track" class="qtrack"></div>
+    <div class="eyebrow center" id="game-phase-label" style="margin:6px 0 2px"></div>
+    <div class="center" id="game-leader" style="font-family:'Grenze Gotisch',serif;font-size:22px;min-height:1.3em"></div>
+    <div id="game-reject" class="center small" style="opacity:.7;min-height:1.2em"></div>
+    <div id="game-awaiting" class="awaiting" style="display:none"></div>
+
+    <!-- seat ring / list -->
+    <div id="game-seats" class="seatlist"></div>
+
+    <!-- PROPOSAL: leader picks a team -->
+    <div id="panel-propose" class="panel" style="display:none">
+      <div class="bar">CHOOSE YOUR TEAM</div>
+      <p class="small center" id="propose-hint">Select <b id="propose-size">0</b> players, then send them on the quest.</p>
+      <button class="btn evil" id="propose-send" onclick="sendProposal()" disabled>Send the Team</button>
+    </div>
+    <div id="panel-propose-wait" class="panel center small" style="display:none;opacity:.75"></div>
+
+    <!-- VOTE: everyone approves/rejects -->
+    <div id="panel-vote" class="panel" style="display:none">
+      <div class="bar">VOTE ON THIS TEAM</div>
+      <div id="vote-team" class="center" style="margin-bottom:10px"></div>
+      <div class="row" style="display:flex;gap:8px">
+        <button class="btn" style="background:var(--good-blue);color:#f2ead8;border-color:var(--good-deep);margin:0" onclick="castVote('approve')">Approve</button>
+        <button class="btn evil" style="margin:0" onclick="castVote('reject')">Reject</button>
+      </div>
+      <p class="small center" id="vote-status" style="margin-top:8px;opacity:.75"></p>
+    </div>
+    <div id="panel-vote-result" class="panel center" style="display:none"></div>
+
+    <!-- QUEST: team members play a card -->
+    <div id="panel-quest" class="panel" style="display:none">
+      <div class="bar">THE QUEST</div>
+      <p class="small center" id="quest-hint"></p>
+      <div class="row" id="quest-cards" style="display:flex;gap:8px;justify-content:center"></div>
+      <p class="small center" id="quest-status" style="margin-top:8px;opacity:.75"></p>
+    </div>
+    <div id="panel-quest-wait" class="panel center small" style="display:none;opacity:.75"></div>
+
+    <!-- ASSASSINATION -->
+    <div id="panel-assassin" class="panel" style="display:none">
+      <div class="bar" style="background:var(--evil-red)">THE ASSASSIN STRIKES</div>
+      <p class="small center" id="assassin-hint"></p>
+      <div id="assassin-targets" class="seatlist"></div>
+    </div>
+
+    <!-- GAME OVER -->
+    <div id="panel-over" class="panel" style="display:none">
+      <div class="overbanner" id="over-banner">
+        <div class="crest" id="over-crest">⚔</div>
+        <div class="verdict" id="over-winner">—</div>
+        <div class="why" id="over-reason"></div>
+      </div>
+      <div class="eyebrow center" style="margin:6px 0 8px">the court is revealed</div>
+      <div id="over-reveal"></div>
+      <button class="btn evil" id="over-rematch" onclick="doRematch()" style="margin-top:14px;display:none">Play Again — same group</button>
+      <button class="btn ghost" onclick="leaveGame()" style="margin-top:8px">Leave game</button>
+    </div>
+
+    <div id="game-history" class="history"></div>
+    <div id="game-log" class="gamelog"></div>
+    <button class="btn ghost" id="game-leave" onclick="leaveGame()" style="margin-top:6px">Leave game</button>
+  </section>
+
+</main></div>
+<div class="status" id="status">connecting…</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+const ROLES_GOOD=[["merlin","Merlin"],["percival","Percival"],["loyal_servant","Loyal Servant"],["cleric","Cleric"],["troublemaker","Troublemaker"],["untrustworthy_servant","Untrust. Servant"],["good_lancelot","Lancelot (G)"],["good_sorcerer","Sorcerer (G)"],["good_rogue","Rogue (G)"],["senior_messenger","Sr Messenger"],["junior_messenger","Jr Messenger"]];
+const ROLES_EVIL=[["assassin","Assassin"],["morgana","Morgana"],["mordred","Mordred"],["oberon","Oberon"],["minion","Minion"],["trickster","Trickster"],["lunatic","Lunatic"],["brute","Brute"],["revealer","Revealer"],["evil_lancelot","Lancelot (E)"],["evil_sorcerer","Sorcerer (E)"],["evil_rogue","Rogue (E)"],["evil_messenger","Evil Messenger"]];
+const $=id=>document.getElementById(id);
+let ws,token=null,code=null,seat=null,isHost=false,myPrivate=null,cardOpen=false;
+let settings={players:5,roles:{},lanc:"default",sorc:false,msg:false};
+let reconnectTimer=null,manualLeave=false;
+let reconnectAttempts=0,connectedOnce=false,toastTimer=null;
+
+/* The offline (pass-and-play) app. Swap this one URL if the Pages address changes. */
+const OFFLINE_APP_URL="https://thomasolearycolemans-sys.github.io/Avalon/";
+
+let currentScreen=null;
+function screen(name){
+  if(name===currentScreen){return;}   // already here — don't re-scroll or re-flash
+  currentScreen=name;
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+  $("s-"+name).classList.add("active");
+  document.querySelector("main").scrollTop=0;
+}
+
+/* ---- connection overlay (blocks interaction while not connected) ---- */
+function showOverlay(title,sub,showRetry){
+  $("overlay-title").textContent=title;
+  $("overlay-sub").textContent=sub||"";
+  $("overlay-act").style.display=showRetry?"block":"none";
+  $("overlay").classList.add("show");
+}
+function hideOverlay(){ $("overlay").classList.remove("show"); }
+function overlayRetry(){ reconnectAttempts=0; showOverlay("Lighting the lantern…","Connecting to the table."); connect(bootAction); }
+
+/* ---- error / info toast (persists ~5s, distinct from idle status) ---- */
+function toast(msg,kind){
+  const el=$("toast");
+  $("toast-msg").textContent=msg;
+  $("toast-icon").textContent=(kind==="info")?"✦":"⚠";
+  el.classList.toggle("info",kind==="info");
+  el.classList.add("show");
+  announce(msg);
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>el.classList.remove("show"),5000);
+}
+function setStatus(t,err){const s=$("status");s.textContent=t;s.classList.toggle("err",!!err);}
+/* Screen-reader announcements for the constant server-driven state changes.
+   Re-setting textContent (with a brief clear) ensures repeated messages re-announce. */
+let lastAnnounce="";
+function announce(msg){
+  if(!msg||msg===lastAnnounce) { /* still refresh for turn repeats */ }
+  lastAnnounce=msg;
+  const el=$("sr-live"); if(!el) return;
+  el.textContent="";
+  setTimeout(()=>{ el.textContent=msg; }, 30);
+}
+
+function save(){try{localStorage.setItem("avalon-online-session",JSON.stringify({code,token}))}catch(e){}}
+function loadSession(){try{return JSON.parse(localStorage.getItem("avalon-online-session"))}catch(e){return null}}
+function clearSession(){try{localStorage.removeItem("avalon-online-session")}catch(e){}}
+
+function connect(then){
+  const proto=location.protocol==="https:"?"wss":"ws";
+  try{ ws=new WebSocket(proto+"://"+location.host); }
+  catch(e){ scheduleReconnect(); return; }
+  ws.onopen=()=>{
+    reconnectAttempts=0;connectedOnce=true;
+    hideOverlay();setStatus("connected");
+    then&&then();
+  };
+  ws.onmessage=e=>handle(JSON.parse(e.data));
+  ws.onclose=()=>{
+    if(manualLeave)return;
+    // if we were in a live game/room, try to restore the seat; otherwise just reconnect
+    scheduleReconnect();
+  };
+  ws.onerror=()=>{ /* onclose will follow and handle retry */ };
+}
+function scheduleReconnect(){
+  reconnectAttempts++;
+  // first failure while still on the home screen = likely a sleeping server (cold start)
+  if(!connectedOnce){
+    showOverlay("Waking the table…","The server may be asleep — this can take up to a minute on the first game. Hang tight.");
+  } else {
+    showOverlay("Reconnecting…","The connection dropped. Restoring your seat — your role is safe.");
+  }
+  // exponential backoff, capped; show a manual retry after several tries
+  const delay=Math.min(1500*Math.pow(1.6,Math.min(reconnectAttempts-1,6)),15000);
+  if(reconnectAttempts>=8){
+    showOverlay(connectedOnce?"Still trying to reconnect…":"Still waking the table…",
+      "This is taking longer than usual. You can keep waiting, or try again.",true);
+  }
+  clearTimeout(reconnectTimer);
+  reconnectTimer=setTimeout(()=>connect(()=>{
+    if(code&&token) ws.send(JSON.stringify({type:"reconnect",code,token}));
+  }),delay);
+}
+function sendMsg(o){ if(ws&&ws.readyState===1) ws.send(JSON.stringify(o)); }
+
+function handle(m){
+  if(m.type==="error"){
+    // a failed reconnect (room gone / seat lost) should release us to home, not trap us under the overlay
+    const reconnErr=/no longer exists|restore your seat|not in a game/i.test(m.message||"");
+    if(reconnErr && !token){ /* transient */ }
+    if(reconnErr){
+      clearSession();myPrivate=null;myGame=null;curGame=null;seat=token=code=null;currentScreen=null;
+      hideOverlay();screen("home");toast(m.message);setStatus("ready");
+      return;
+    }
+    toast(m.message); setStatus(m.message,true); return;
+  }
+  if(m.type==="created"||m.type==="joined"){
+    token=m.token;code=m.code;seat=m.seat;save();
+    hideOverlay();
+    if(m.reconnected){ toast("You're back — seat restored.","info"); setStatus("reconnected"); }
+    else setStatus(m.type==="created"?"game created":"joined");
+    return;
+  }
+  if(m.type==="room_state"){applyRoom(m.room);return;}
+  if(m.type==="private_state"){myPrivate=m.you;applyPrivate();return;}
+  if(m.type==="private_game"){myGame=m.ctx;applyPrivateGame();return;}
+  if(m.type==="kicked"){
+    manualLeave=true;clearSession();myPrivate=null;myGame=null;curGame=null;seat=token=code=null;currentScreen=null;
+    if(ws)ws.close();
+    screen("home");hideOverlay();toast("The host removed you from the lobby.","info");setStatus("removed");
+    return;
+  }
+  if(m.type==="disbanded"){
+    manualLeave=true;clearSession();myPrivate=null;myGame=null;curGame=null;seat=token=code=null;currentScreen=null;
+    if(ws)ws.close();
+    screen("home");hideOverlay();toast("The host disbanded the game.","info");setStatus("disbanded");
+    return;
+  }
+}
+
+function applyRoom(room){
+  code=room.code;
+  const me=room.players.find(p=>p.seat===seat);
+  isHost=me?me.isHost:false;
+  // phase routing
+  if(room.phase==="night"||room.phase==="done"){ applyNarration(room); }
+  else if(room.phase==="game"){ applyGame(room); }
+  else if(room.phase==="revealed"){ screen("reveal"); renderLeader(room); maybeShowStartNight(room); }
+  else { screen("lobby"); }
+  $("lobby-code").textContent=room.code;
+  renderQR(room.code);
+  $("pcount").textContent=room.players.length;
+  $("players").innerHTML=room.players.map(p=>{
+    const kickable = isHost && room.phase==="lobby" && !p.isHost && p.seat!==seat;
+    const kick = kickable ? `<button class="kickx" onclick="kickPlayer(${p.seat})" title="Remove ${escapeHtml(p.name)}" aria-label="Remove ${escapeHtml(p.name)} from the lobby">✕</button>` : "";
+    return `<span class="pill ${p.isHost?'host':''} ${p.connected?'':'away'}"><span class="dot"></span>${escapeHtml(p.name)}${p.isHost?' · host':''}${p.connected?'':' · away'}${kick}</span>`;
+  }).join("");
+  $("hostbox").style.display=isHost&&room.phase==="lobby"?"block":"none";
+  $("lobby-disband").style.display=isHost&&room.phase==="lobby"?"block":"none";
+  $("waithint").style.display=!isHost&&room.phase==="lobby"?"block":"none";
+  if(isHost&&room.phase==="lobby"){
+    settings.players=room.settings.players;settings.lanc=room.settings.lanc;settings.sorc=room.settings.sorc;settings.msg=room.settings.msg;
+    $("seated").textContent=room.players.filter(p=>p.connected).length;
+    $("chosen").textContent=room.settings.roleTotal;
+    renderRoleChips();
+    $("l-def").classList.toggle("on",settings.lanc==="default");$("l-var").classList.toggle("on",settings.lanc==="variant");
+    $("s-off").classList.toggle("on",!settings.sorc);$("s-on").classList.toggle("on",settings.sorc);
+    $("m-off").classList.toggle("on",!settings.msg);$("m-on").classList.toggle("on",settings.msg);
+    $("warnings").innerHTML=(room.warnings||[]).map(w=>`<div class="frame" style="border-left:3px solid var(--evil-red);font-size:13.5px">${escapeHtml(w)}</div>`).join("");
+    const seated=room.players.filter(p=>p.connected).length;
+    $("dealbtn").disabled=!(seated>=5&&room.settings.roleTotal===seated);
+  }
+}
+function renderLeader(room){
+  if(room.firstLeaderName){$("rev-leader").textContent=room.firstLeaderName;$("rev-leader-sub").textContent=room.firstLeaderName+" proposes the first team.";}
+}
+function applyPrivate(){
+  if(!myPrivate)return;
+  if(myPrivate.phase==="revealed"&&myPrivate.role){
+    if(!$("s-reveal").classList.contains("active"))screen("reveal");
+    cardOpen=false;renderCard();
+    if(myPrivate.firstLeaderName){$("rev-leader").textContent=myPrivate.firstLeaderName;$("rev-leader-sub").textContent=myPrivate.firstLeaderName+" proposes the first team.";}
+  }
+}
+
+/* ---- lobby: host role selection ---- */
+function rc(k){return settings.roles[k]||0}
+function renderRoleChips(){
+  const mk=(list)=>list.map(([k,label])=>{const c=rc(k);const max=MAXCOPIES(k);return `<button class="rc ${c?'on':''}" onclick="toggleRole('${k}')">${label}${max>1?` ×${c}`:''}</button>`}).join("");
+  $("rolechips").innerHTML=`<div class="small" style="width:100%;opacity:.7;margin-bottom:2px">Good</div>${mk(ROLES_GOOD)}<div class="small" style="width:100%;opacity:.7;margin:6px 0 2px">Evil</div>${mk(ROLES_EVIL)}`;
+}
+function MAXCOPIES(k){return MAXCOPIES_[k]||1}
+const MAXCOPIES_={loyal_servant:6,minion:4};
+function toggleRole(k){const max=MAXCOPIES(k);settings.roles[k]=((settings.roles[k]||0)+1)%(max+1);if(!settings.roles[k])delete settings.roles[k];pushSettings();renderRoleChips();}
+function setOpt(key,val){settings[key]=val;pushSettings();}
+function pushSettings(){sendMsg({type:"updateSettings",token,patch:{players:settings.players,roles:settings.roles,lanc:settings.lanc,sorc:settings.sorc,msg:settings.msg}});}
+
+/* ---- reveal card ---- */
+let flipBusy=false;
+function toggleCard(){
+  if(flipBusy) return;
+  const card=$("rev-card");
+  const reduce=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if(reduce){ cardOpen=!cardOpen; renderCard(); return; }
+  flipBusy=true;
+  card.classList.add("flipping");
+  setTimeout(()=>{
+    cardOpen=!cardOpen; renderCard();       // swap content while edge-on
+    card.classList.remove("flipping");
+    setTimeout(()=>{flipBusy=false;},340);
+  },170);
+}
+function renderCard(){
+  const card=$("rev-card");
+  if(cardOpen&&myPrivate){
+    card.classList.toggle("evil",myPrivate.team==="evil");
+    document.body.dataset.team=myPrivate.team;
+    $("rev-facecue").style.display="none";
+    $("rev-band").style.display="";$("rev-band").textContent=myPrivate.roleName;
+    $("rev-detail").style.display="block";
+    // screen-reader announcement of the revealed identity + its knowledge
+    let ann=`You are ${myPrivate.roleName}, on the ${myPrivate.team==="evil"?"Evil":"Good"} side.`;
+    if(myPrivate.knowledge){
+      const k=myPrivate.knowledge;
+      if(k.names&&k.names.length) ann+=` ${k.head}: ${k.names.join(", ")}.`;
+      else if(k.none) ann+=` ${k.none}`;
+      if(k.sub) ann+=` ${k.sub}`;
+    }
+    card.setAttribute("aria-label", ann+" Activate to hide.");
+    announce(ann);
+    if(myPrivate.knowledge){
+      const k=myPrivate.knowledge;
+      $("rev-info").style.display="block";$("rev-decoy").style.display="none";
+      $("rev-info").innerHTML=`<div class="ihead">${escapeHtml(k.head)}</div>`+
+        (k.names&&k.names.length?`<ul>${k.names.map(n=>`<li>${escapeHtml(n)}</li>`).join("")}</ul>`:"")+
+        (k.none?`<div class="none">${escapeHtml(k.none)}</div>`:"")+
+        (k.sub?`<div class="sub">${escapeHtml(k.sub)}</div>`:"");
+    } else {
+      $("rev-info").style.display="none";$("rev-decoy").style.display="block";
+      if($("rev-eq").textContent==="—")$("rev-eq").textContent=equation();
+    }
+  } else {
+    card.classList.remove("evil");document.body.dataset.team="";
+    card.setAttribute("aria-label","Your role card. Activate to reveal.");
+    $("rev-facecue").style.display="grid";$("rev-band").style.display="none";$("rev-detail").style.display="none";
+  }
+}
+function equation(){const ops=[["+",(a,b)=>a+b],["×",(a,b)=>a*b],["−",(a,b)=>a-b]];const[s]=ops[Math.floor(Math.random()*3)];let a=2+Math.floor(Math.random()*12),b=2+Math.floor(Math.random()*12);if(s==="−"&&b>a){[a,b]=[b,a]}return `${a} ${s} ${b} = ?`;}
+
+/* ---- actions ---- */
+function nameVal(){return ($("name").value||"").trim();}
+function doCreate(){manualLeave=false;connectThen(()=>sendMsg({type:"create",name:nameVal()}));}
+function doJoin(){const c=($("joincode").value||"").trim().toUpperCase();if(c.length<4){setStatus("Enter the 4-letter code.",true);return;}manualLeave=false;connectThen(()=>sendMsg({type:"join",code:c,name:nameVal()}));}
+function connectThen(fn){ if(ws&&ws.readyState===1)fn(); else connect(fn); }
+function doDeal(){sendMsg({type:"startDeal",token});}
+function leaveGame(){manualLeave=true;sendMsg({type:"leave",token});clearSession();myPrivate=null;seat=token=code=null;currentScreen=null;if(ws)ws.close();screen("home");setStatus("left the game");}
+function openRename(){ const r=$("rename-row"); r.style.display=r.style.display==="none"?"block":"none"; if(r.style.display==="block"){$("rename-input").focus();} }
+function submitRename(){ const n=($("rename-input").value||"").trim(); if(n){ sendMsg({type:"setName",token,name:n}); } $("rename-row").style.display="none"; $("rename-input").value=""; }
+function kickPlayer(pseat){ if(confirm("Remove this player from the lobby?")) sendMsg({type:"kick",token,seat:pseat}); }
+function doRematch(){ sendMsg({type:"rematch",token}); }
+function showHelp(){ $("help").classList.add("show"); }
+function hideHelp(){ $("help").classList.remove("show"); }
+function disbandGame(){
+  if(!confirm("Disband the lobby for everyone? This ends the game for all players."))return;
+  manualLeave=true;
+  sendMsg({type:"disband",token});
+  clearSession();myPrivate=null;seat=token=code=null;currentScreen=null;
+  if(ws)ws.close();
+  screen("home");setStatus("lobby disbanded");
+}
+
+function renderQR(text){
+  const link=location.origin+"/join/"+text;
+  $("share-hint").textContent="Share the code, this link, or the QR below.";
+  const el=$("qr");el.innerHTML="";
+  try{ new QRCode(el,{text:link,width:150,height:150,correctLevel:QRCode.CorrectLevel.M}); }
+  catch(e){ el.style.display="none"; }
+}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+
+/* ================= SYNCHRONISED NIGHT (client) ================= */
+/* On-screen line text per segment id. Mirrors the server's queue ids.
+   The audio files (audio/<id>.mp3) and music (music/<key>.mp3) are served
+   alongside this client; place those folders next to index.html on the server. */
+const NIGHT_TEXT = {
+"010-settle":"Welcome to Avalon. The night phase is about to begin. Rest your hands on the table.",
+"020-close":"Everyone — close your eyes, and make a fist. Keep it still until you are called.",
+"025-cleric":"Cleric — learn whether the first quest's leader is good or evil.",
+"026-cleric-close":"Cleric — close your eyes.",
+"028-lancelot-thumb":"Evil Lancelot — show your thumb to your fellow evils.",
+"034-evil-close":"Evil players — close your eyes again.",
+"035-lancelot-fist":"Evil Lancelot — re-form your fist.",
+"040-checkpoint":"Everyone — eyes closed, hands in fists, and still.",
+"062-merlin-open":"Merlin — open your eyes and see the agents of evil.",
+"064-reform-merlin-close":"Re-form your fists. Merlin — close your eyes.",
+"070-uts":"The Untrustworthy Servant learns who the Assassin is.",
+"072-uts-close":"Untrustworthy Servant — close your eyes.",
+"082-percival-close":"Re-form your fists. Percival — close your eyes.",
+"090-lancelot-meet":"Both Lancelots — open your eyes and see each other.",
+"092-lancelot-meet-close":"Lancelots — close your eyes.",
+"100-messenger":"The Senior Messenger learns who the Junior Messenger is.",
+"102-messenger-close":"Senior Messenger — close your eyes.",
+"190-dawn":"The night is over. On the count of three, open your eyes. One… two… three."
+};
+function nightTextFor(id){
+  if(NIGHT_TEXT[id]) return NIGHT_TEXT[id];
+  if(id.startsWith("030-evil-open")) return "Evil players — open your eyes and see one another.";
+  if(id.startsWith("060-thumbs")) return "All evil players — show your thumb so Merlin may see.";
+  if(id.startsWith("080-percival")) return "Percival — open your eyes and see.";
+  return "…";
+}
+
+let narr={idx:-1,segId:null,music:"off",primed:false};
+let narrAudio=null, musicAudio=null, musicCtx=null, musicGain=null;
+
+function primeNight(){
+  if(narr.primed) return;
+  narr.primed=true;
+  narrAudio=new Audio(); narrAudio.preload="auto";
+  // prime TTS fallback inside the user gesture
+  try{ if("speechSynthesis" in window){ const u=new SpeechSynthesisUtterance(" ");u.volume=0;speechSynthesis.speak(u);} }catch(e){}
+}
+function startMusic(key){
+  stopMusic();
+  if(!key||key==="off") return;
+  const el=new Audio("music/"+key+".mp3"); el.loop=true; musicAudio=el;
+  el.onerror=()=>{musicAudio=null;};
+  try{
+    const AC=window.AudioContext||window.webkitAudioContext;
+    musicCtx=new AC(); const src=musicCtx.createMediaElementSource(el);
+    musicGain=musicCtx.createGain(); musicGain.gain.value=0;
+    src.connect(musicGain); musicGain.connect(musicCtx.destination);
+    if(musicCtx.state==="suspended") musicCtx.resume();
+  }catch(e){ musicCtx=null;musicGain=null; try{el.volume=0}catch(_){} }
+  el.play().then(()=>gain(.35,2)).catch(()=>{});
+}
+function gain(v,secs){
+  if(musicGain&&musicCtx){const g=musicGain.gain,t=musicCtx.currentTime;g.cancelScheduledValues(t);g.setValueAtTime(g.value,t);g.linearRampToValueAtTime(v,t+secs);}
+  else if(musicAudio){ try{musicAudio.volume=Math.max(0,Math.min(1,v))}catch(e){} }
+}
+function duck(on){ gain(on?.10:.32, on?.4:1.2); }
+function stopMusic(){ if(musicAudio){try{musicAudio.pause()}catch(e){}} musicAudio=null; if(musicCtx){try{musicCtx.close()}catch(e){}} musicCtx=null;musicGain=null; }
+
+function playSegmentAudio(segId, elapsedMs, autoFlowHostControlled){
+  // play recorded line if present; fall back to TTS; duck music under it
+  duck(true);
+  const a=narrAudio||(narrAudio=new Audio());
+  let handled=false;
+  const done=()=>{ if(handled)return; handled=true; duck(false);
+    // only the HOST reports completion (drives auto-advance); guests just listen
+    if(myPrivate&&myPrivate.isHost) sendMsg({type:"segmentDone",token,idx:narr.idx});
+  };
+  a.onended=done;
+  a.onerror=()=>{ if(handled)return; handled=true; ttsLine(segId,done); };
+  try{ a.src="audio/"+segId+".mp3"; a.currentTime=(elapsedMs>250?elapsedMs/1000:0); a.load(); }
+  catch(e){ ttsLine(segId,done); return; }
+  const p=a.play();
+  if(p&&p.then) p.catch(()=>ttsLine(segId,done));
+}
+function ttsLine(segId,done){
+  const line=nightTextFor(segId);
+  if(!("speechSynthesis" in window)){ setTimeout(done, Math.max(2500, line.split(/\s+/).length*420)); return; }
+  const u=new SpeechSynthesisUtterance(line.replace(/…/g,", ")); u.rate=.85;u.pitch=.9; u.onend=done; u.onerror=done;
+  speechSynthesis.cancel(); speechSynthesis.speak(u);
+}
+
+function applyNarration(room){
+  const n=room.narration; if(!n) return;
+  // enter/refresh the night screen
+  if(n.active){
+    if(!$("s-night").classList.contains("active")) screen("night");
+    $("night-hostctrl").style.display=isHost?"block":"none";
+    $("night-guesthint").style.display=isHost?"none":"block";
+    $("night-done").style.display="none";
+    // music selection change
+    if(n.music!==narr.music){ narr.music=n.music; if(n.music&&n.music!=="off") startMusic(n.music); else stopMusic(); }
+    // new segment?
+    if(n.segId && n.idx!==narr.idx){
+      narr.idx=n.idx; narr.segId=n.segId;
+      $("night-step").textContent = n.segId.replace(/-/g," ").replace(/\d+/g,"").trim();
+      $("night-line").textContent = nightTextFor(n.segId);
+      $("night-progress").textContent = (n.idx+1)+" / "+n.total;
+      if(!n.paused) playSegmentAudio(n.segId, n.elapsedMs||0);
+    }
+    $("night-pause").textContent = n.paused?"Resume":"Pause";
+    $("night-next").style.display = n.autoFlow?"none":"block";
+  } else if(room.phase==="done"){
+    // night finished
+    if($("s-night").classList.contains("active")){
+      $("night-line").textContent="The night is over.";
+      $("night-step").textContent="";
+      $("night-hostctrl").style.display="none";
+      $("night-guesthint").style.display="none";
+      $("night-done").style.display="block";
+      $("night-done-play").style.display=isHost?"block":"none";
+      duck(false); stopMusic();
+      if("speechSynthesis" in window) speechSynthesis.cancel();
+    }
+  }
+}
+
+/* host narration controls */
+function setNarr(key,val){
+  if(key==="gapSeconds") $("buf-val").textContent=val.toFixed(1);
+  if(key==="autoFlow"){ $("af-on").classList.toggle("on",val); $("af-off").classList.toggle("on",!val); }
+  sendMsg({type:"narrationOpts",token,patch:{[key]:val}});
+}
+function doStartNight(){ primeNight(); if(narr.music&&narr.music!=="off") startMusic(narr.music); sendMsg({type:"startNight",token}); }
+function nightPause(){ const paused=$("night-pause").textContent!=="Resume"; sendMsg({type:"pauseNight",token,paused}); }
+function nightStep(){ sendMsg({type:"stepNight",token}); }
+function nightMusicToggle(){ if(musicAudio){ const muted=musicAudio.muted=!musicAudio.muted; $("night-music").style.opacity=muted?.5:1; } }
+
+/* show the host's "start night" panel on the reveal screen */
+function maybeShowStartNight(room){
+  $("rev-startnight").style.display=(isHost && room.phase==="revealed")?"block":"none";
+  $("rev-startgame").style.display=(isHost && room.phase==="revealed")?"block":"none";
+  if(isHost && room.settings){
+    const sel=$("music-sel"); if(sel && room.settings.music) sel.value=room.settings.music;
+    if(room.settings.music) narr.music=room.settings.music;
+  }
+}
+
+/* ================= GAME BOARD (Phase 3, client) ================= */
+let myGame=null;        // my private game-context from the server
+let curGame=null;       // last public game view
+let proposePick=[];     // seats the leader has selected
+let lastQuestCount=0;   // for detecting a fresh quest resolution (Step 5 beat)
+let lastGamePhase=null; // for detecting entry into 'over'
+let overRevealed=false; // ensure the end reveal cascade renders only once
+
+function applyGame(room){
+  const g=room.game; curGame=g; if(!g) return;
+  if(!$("s-game").classList.contains("active")) screen("game");
+  // Fresh game? (no quests resolved yet and we're back in early phases) — reset Step 5 trackers.
+  if((g.questResults||[]).length===0 && (g.phase==="proposal"||g.phase==="vote")){
+    lastQuestCount=0; overRevealed=false;
+  }
+  // Detect a freshly-resolved quest: questResults grew since we last saw the board.
+  const qc=(g.questResults||[]).length;
+  const newlyResolved = qc>lastQuestCount && lastGamePhase!==null;
+  const justResolved = newlyResolved ? g.questResults[qc-1] : null;
+  lastQuestCount=qc; lastGamePhase=g.phase;
+  // Always render the board (state is never blocked by the cosmetic beat).
+  renderBoard(g);
+  if(justResolved){ playQuestBeat(justResolved); }
+  announceGame(g, justResolved);
+}
+let lastAnnouncedPhase=null, lastAnnouncedLeader=null;
+function announceGame(g, justResolved){
+  // quest result
+  if(justResolved){ announce(justResolved==="success"?`Quest ${g.questResults.length} succeeded.`:`Quest ${g.questResults.length} failed.`); }
+  // phase / turn transitions
+  const key=g.phase+"|"+g.leaderSeat+"|"+g.questNumber;
+  if(key===lastAnnouncedPhase) return;
+  lastAnnouncedPhase=key;
+  const meLeader=(g.leaderSeat===seat);
+  if(g.phase==="proposal"){
+    announce(`${meLeader?"Your turn to propose a team":g.leaderName+" is proposing a team"}. Quest ${g.questNumber}, ${g.questSize} members.`);
+  } else if(g.phase==="vote"){
+    announce("Vote on the proposed team: approve or reject.");
+  } else if(g.phase==="quest"){
+    announce("The team is on the quest. Team members choose a card.");
+  } else if(g.phase==="assassination"){
+    announce("Three quests succeeded. The Assassin now chooses a target.");
+  } else if(g.phase==="over"){
+    announce((g.winner==="good"?"Good wins. ":"Evil wins. ")+(g.winReason||""));
+  }
+}
+function applyPrivateGame(){ if(curGame) renderBoard(curGame); }
+
+/* A short, skippable "the quest returns" beat before the eye lands on the result.
+   Purely cosmetic — the board is already updated underneath. Tap to skip. */
+let beatTimer=null;
+function playQuestBeat(result){
+  const reduce=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if(reduce) return;
+  const b=$("beat");
+  b.className=""; // reset
+  b.classList.add(result==="success"?"success":"fail");
+  $("beat-text").textContent="The quest returns…";
+  $("beat-sub").textContent="a rider approaches";
+  b.classList.add("show");
+  const finish=()=>{ b.classList.remove("show"); b.onclick=null; clearTimeout(beatTimer); };
+  b.onclick=finish;
+  clearTimeout(beatTimer);
+  // reveal the verdict word briefly, then clear
+  beatTimer=setTimeout(()=>{
+    $("beat-text").textContent = result==="success" ? "The quest succeeds." : "The quest fails.";
+    $("beat-sub").textContent = "";
+    beatTimer=setTimeout(finish, 1100);
+  }, 900);
+}
+
+function renderBoard(g){
+  // quest track
+  const sizes=[];
+  const pc=g.players.length;
+  const QS={5:[2,3,2,3,3],6:[2,3,4,3,4],7:[2,3,3,4,4],8:[3,4,4,5,5],9:[3,4,4,5,5],10:[3,4,4,5,5]}[pc]||[];
+  $("quest-track").innerHTML=QS.map((sz,i)=>{
+    const qn=i+1; const res=g.questResults[i];
+    const two=(pc>=7&&qn===4)?'<span class="two">×2</span>':'';
+    const cls=res?res:(qn===g.questNumber&&g.phase!=="over"?"current":"");
+    return `<div class="q ${cls}" style="position:relative">${res?(res==="success"?"✓":"✕"):`<span>${qn}</span>`}<span class="sz">${sz}${two?" ⚑":""}</span></div>`;
+  }).join("");
+
+  // phase label + leader
+  const labels={proposal:"proposing a team",vote:"voting",quest:"on the quest",assassination:"the assassin decides",over:"game over"};
+  $("game-phase-label").textContent=labels[g.phase]||"";
+  $("game-leader").textContent = g.phase==="over"?"" : `Leader: ${g.leaderName}`;
+  $("game-reject").textContent = (g.phase==="proposal"||g.phase==="vote") && g.voteRejectCount>0 ? `${g.voteRejectCount} rejected so far — 5 in a row and evil wins` : "";
+
+  // "waiting on" banner — surfaces a stalled round, and flags a dropped player who
+  // would otherwise silently freeze the game so the table (and host) can see it.
+  const aw=$("game-awaiting");
+  const list=(g.awaiting||[]);
+  if(list.length && g.phase!=="over"){
+    const dropped=list.filter(a=>!a.connected);
+    if(dropped.length){
+      aw.className="awaiting dropped";
+      const names=dropped.map(a=>`<span class="who">${escapeHtml(a.name)}</span>`).join(", ");
+      aw.innerHTML=`Waiting on ${names}<span class="tag">reconnecting…</span><div style="opacity:.75;margin-top:4px">Their turn is held — nothing is lost. The game continues when they return.</div>`;
+      aw.style.display="block";
+    } else if(list.length){
+      // everyone we're waiting on is present — a gentle, non-alarming note
+      const names=list.map(a=>escapeHtml(a.name)).join(", ");
+      aw.className="awaiting";
+      aw.innerHTML=`<span class="who">Waiting on: ${names}</span>`;
+      aw.style.display="block";
+    }
+  } else {
+    aw.style.display="none";
+  }
+
+  // seat list (with leader/team/vote/you markers, and revealed votes after a completed vote)
+  const onTeam=s=>g.proposal&&g.proposal.includes(s);
+  // the most recent completed vote for THIS quest attempt, if we're between vote and next proposal
+  const lastVote=(g.voteHistory&&g.voteHistory.length)?g.voteHistory[g.voteHistory.length-1]:null;
+  // reveal per-player votes when: the vote just completed (we're now in quest/proposal after it)
+  const showRevealedVotes = lastVote && (g.phase==="quest" || (g.phase==="proposal" && !g.proposal));
+  $("game-seats").innerHTML=g.players.map(p=>{
+    const isMe=(p.seat===seat);
+    const voting=(g.phase==="vote"&&g.votedSeats&&g.votedSeats.includes(p.seat))?"voted":"";
+    let voteMark="";
+    if(g.phase==="vote"){ voteMark='<span class="v"></span>'; }
+    else if(showRevealedVotes && lastVote.votes && lastVote.votes[p.seat]){
+      const vv=lastVote.votes[p.seat];
+      voteMark=`<span class="vote ${vv}">${vv==="approve"?"✓":"✕"}</span>`;
+    }
+    return `<span class="st ${p.seat===g.leaderSeat?'leader':''} ${onTeam(p.seat)?'onteam':''} ${voting} ${isMe?'me':''}">${voteMark}${escapeHtml(p.name)}${p.seat===g.leaderSeat?' ♛':''}${isMe?' <span class="youtag">you</span>':''}</span>`;
+  }).join("");
+
+  renderHistory(g);
+
+  // hide all panels, then show the one for this phase/role
+  ["propose","propose-wait","vote","vote-result","quest","quest-wait","assassin","over"].forEach(k=>$("panel-"+k).style.display="none");
+  const mine=myGame||{};
+
+  if(g.phase==="proposal"){
+    if(mine.isLeader){
+      proposePick=proposePick.filter(s=>g.players.some(p=>p.seat===s));
+      $("panel-propose").style.display="block";
+      $("propose-size").textContent=g.questSize;
+      renderProposePicker(g);
+    } else {
+      $("panel-propose-wait").style.display="block";
+      $("panel-propose-wait").textContent=`Waiting for ${g.leaderName} to choose a team of ${g.questSize}…`;
+    }
+  }
+  else if(g.phase==="vote"){
+    if(mine.hasVoted){
+      $("panel-vote-result").style.display="block";
+      $("panel-vote-result").innerHTML=`<p class="small">Your vote is in. Waiting for the others…</p><p class="small" style="opacity:.7">${(g.votedSeats||[]).length} of ${g.players.length} voted</p>`;
+    } else {
+      $("panel-vote").style.display="block";
+      $("vote-team").innerHTML="Team: "+g.proposal.map(s=>escapeHtml(nameOfSeat(g,s))).join(", ");
+      $("vote-status").textContent=`${(g.votedSeats||[]).length} of ${g.players.length} voted`;
+    }
+  }
+  else if(g.phase==="quest"){
+    if(mine.onTeam){
+      if(mine.hasSubmitted){
+        $("panel-quest-wait").style.display="block";
+        $("panel-quest-wait").textContent="Your card is played. Waiting for the rest of the team…";
+      } else {
+        $("panel-quest").style.display="block";
+        $("quest-hint").textContent="Play your card in secret.";
+        const cards=(mine.allowedCards||["success"]);
+        $("quest-cards").innerHTML=cards.map(c=>`<button class="qcard ${c}" onclick="playQuest('${c}')">${c==="success"?"Success":"Fail"}</button>`).join("");
+        $("quest-status").textContent = cards.length===1 ? "As a loyal servant, you may only succeed." : "";
+      }
+    } else {
+      $("panel-quest-wait").style.display="block";
+      $("panel-quest-wait").textContent="The team is on the quest. Waiting…";
+    }
+  }
+  else if(g.phase==="assassination"){
+    if(mine.isAssassin){
+      $("panel-assassin").style.display="block";
+      $("assassin-hint").textContent="Three quests succeeded. Name the player you believe is Merlin.";
+      $("assassin-targets").innerHTML=g.players.filter(p=>p.seat!==mine.seat).map(p=>`<span class="st pick" role="button" tabindex="0" aria-label="Name ${escapeHtml(p.name)} as Merlin." onclick="doAssassinate(${p.seat})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();doAssassinate(${p.seat});}">${escapeHtml(p.name)}</span>`).join("");
+    } else {
+      $("panel-propose-wait").style.display="block";
+      $("panel-propose-wait").textContent="The Assassin is choosing whether they have found Merlin…";
+    }
+  }
+  else if(g.phase==="over"){
+    $("panel-over").style.display="block";
+    $("game-leave").style.display="none";
+    const good=g.winner==="good";
+    const banner=$("over-banner");
+    banner.className="overbanner "+(good?"good":"evil");
+    $("over-crest").textContent=good?"♛":"⚔";
+    $("over-winner").textContent=good?"Good Triumphs":"Evil Prevails";
+    $("over-reason").textContent=g.winReason||"";
+    $("over-rematch").style.display = isHost ? "block" : "none";
+    // render the role reveal once, cascading in, rather than re-animating on every broadcast
+    if(!overRevealed){
+      overRevealed=true;
+      const rows=(g.reveal||[]).map((r,i)=>`<div class="revrole revrow ${r.team}" style="animation-delay:${i*90}ms"><span>${escapeHtml(r.name)}</span><span class="rn">${escapeHtml(r.roleName)}</span></div>`).join("");
+      $("over-reveal").innerHTML=rows;
+    }
+  }
+
+  // log
+  $("game-log").innerHTML=(g.log||[]).map(l=>`<div>${escapeHtml(l)}</div>`).join("");
+}
+function nameOfSeat(g,seat){const p=g.players.find(x=>x.seat===seat);return p?p.name:"?";}
+
+/* Persistent deduction history: each quest's team + outcome, and the vote record
+   behind every proposal. This is the information Avalon reasoning is built on. */
+function renderHistory(g){
+  const el=$("game-history");
+  const vh=g.voteHistory||[], qh=g.questHistory||[];
+  if(!vh.length && !qh.length){ el.style.display="none"; return; }
+  el.style.display="block";
+  let html='<div class="hhead">History</div>';
+  // quests completed
+  qh.forEach(q=>{
+    const teamNames=q.team.map(s=>escapeHtml(nameOfSeat(g,s))).join(", ");
+    html+=`<div class="hrow"><span class="hq ${q.result}">Quest ${q.questNumber} ${q.result==="success"?"✓":"✕"}</span> <span class="hteam">${teamNames}</span>`+
+      (q.fails>0?` <span class="hfail">${q.fails} fail${q.fails>1?"s":""}</span>`:"")+`</div>`;
+  });
+  // proposals + votes, grouped newest last; show each player's approve/reject
+  if(vh.length){
+    html+='<div class="hsub">Proposals &amp; votes</div>';
+    vh.forEach(v=>{
+      const teamNames=v.proposal.map(s=>escapeHtml(nameOfSeat(g,s))).join(", ");
+      const chips=g.players.map(p=>{
+        const vv=v.votes[p.seat];
+        return `<span class="vchip ${vv}" title="${escapeHtml(nameOfSeat(g,p.seat))}">${vv==="approve"?"✓":"✕"}<span class="vn">${escapeHtml(nameOfSeat(g,p.seat))}</span></span>`;
+      }).join("");
+      html+=`<div class="hrow"><span class="hp ${v.passed?'passed':'failed'}">Q${v.questNumber}·${v.round} ${v.passed?"approved":"rejected"} ${v.approve}–${v.reject}</span> <span class="hteam">${teamNames}</span><div class="vchips">${chips}</div></div>`;
+    });
+  }
+  el.innerHTML=html;
+}
+
+function renderProposePicker(g){
+  $("game-seats").innerHTML=g.players.map(p=>{
+    const picked=proposePick.includes(p.seat)?"picked":"";
+    return `<span class="st pick ${p.seat===g.leaderSeat?'leader':''} ${picked}" role="button" tabindex="0" aria-pressed="${proposePick.includes(p.seat)}" aria-label="${escapeHtml(p.name)}${proposePick.includes(p.seat)?', selected':''}. Tap to ${proposePick.includes(p.seat)?'remove from':'add to'} the team." onclick="togglePick(${p.seat})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();togglePick(${p.seat});}">${escapeHtml(p.name)}${p.seat===g.leaderSeat?' ♛':''}</span>`;
+  }).join("");
+  $("propose-send").disabled = proposePick.length!==g.questSize;
+}
+function togglePick(seat){
+  if(!curGame) return;
+  const i=proposePick.indexOf(seat);
+  if(i>=0) proposePick.splice(i,1);
+  else { if(proposePick.length>=curGame.questSize) return; proposePick.push(seat); }
+  renderProposePicker(curGame);
+}
+function sendProposal(){ sendMsg({type:"propose",token,seats:proposePick.slice()}); }
+function castVote(v){ sendMsg({type:"vote",token,vote:v}); }
+function playQuest(card){ sendMsg({type:"questCard",token,card}); }
+function doAssassinate(seat){ if(confirm("Name "+nameOfSeat(curGame,seat)+" as Merlin?")) sendMsg({type:"assassinate",token,targetSeat:seat}); }
+
+/* host trigger to begin the refereed game (shown on reveal + narration-done screens) */
+function doStartGame(){ sendMsg({type:"startGame",token}); }
+
+/* ---- boot: attempt auto-reconnect, else read /join/CODE, else home ---- */
+let bootAction=()=>{};
+(function boot(){
+  // point the offline-app link at the configured URL
+  const link=$("offline-link"); if(link){ link.href=OFFLINE_APP_URL; link.onclick=null; link.target="_blank"; link.rel="noopener"; }
+  const path=location.pathname.match(/^\/join\/([A-Za-z0-9]{4})/);
+  const sess=loadSession();
+  bootAction=()=>{
+    if(sess&&sess.code&&sess.token){ setStatus("rejoining…"); code=sess.code;token=sess.token; sendMsg({type:"reconnect",code:sess.code,token:sess.token}); }
+    else if(path){ $("joincode").value=path[1].toUpperCase(); setStatus("enter your name, then Join"); hideOverlay(); }
+    else { setStatus("ready"); hideOverlay(); }
+  };
+  showOverlay("Lighting the lantern…","Connecting to the table.");
+  connect(bootAction);
+})();
+</script>
+</body>
+</html>
